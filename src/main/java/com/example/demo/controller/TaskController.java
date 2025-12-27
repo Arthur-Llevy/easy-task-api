@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.DTO.request.TaskRequestDTO;
 import com.example.demo.DTO.request.TaskUpdateRequestDTO;
-import com.example.demo.exception.TaskNotFoundException;
 import com.example.demo.model.Task;
 import com.example.demo.service.TaskService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -31,7 +31,6 @@ public class TaskController {
     @GetMapping
     public ResponseEntity<List<Task>> getAllTasks() {
         List<Task> tasks = taskService.getAllTasks();
-
         return ResponseEntity.ok(tasks);
     }
 
@@ -39,32 +38,24 @@ public class TaskController {
     // get - /api/taks
     public ResponseEntity<Optional<Task>> getTaskById(@PathVariable int id) {
         Optional<Task> task = taskService.getById(id);
-
         return ResponseEntity.ok(task);
     }
 
     @PostMapping
-    public ResponseEntity<Task> createNewTask(@RequestBody TaskRequestDTO taskRequestDTO) {
+    public ResponseEntity<Task> createNewTask(@RequestBody @Valid TaskRequestDTO taskRequestDTO) {
         Task createdTask = taskService.createTask(taskRequestDTO);
-
         return ResponseEntity.ok(createdTask);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Task> updateTaskById(@PathVariable int id, @RequestBody TaskUpdateRequestDTO taskUpdateRequestDTO) {
-        try {
-            Task updatedTask = taskService.updateTask(taskUpdateRequestDTO, id);
-            return ResponseEntity.status(HttpStatus.OK).body(updatedTask);
-
-        } catch (TaskNotFoundException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
+        Task updatedTask = taskService.updateTask(taskUpdateRequestDTO, id);
+        return ResponseEntity.status(HttpStatus.OK).body(updatedTask);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTaskById(@PathVariable int id) {
         taskService.delteById(id);
-
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
     }
 }
